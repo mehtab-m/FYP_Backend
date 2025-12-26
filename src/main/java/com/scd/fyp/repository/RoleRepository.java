@@ -6,4 +6,5 @@ import com.scd.fyp.model.Role;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
+    java.util.Optional<Role> findByRoleName(String roleName);
 }
