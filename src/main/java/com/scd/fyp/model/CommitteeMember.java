@@ -19,7 +19,6 @@ public class CommitteeMember {
     @JoinColumn(name = "user_id")
     private User user;
 
-    // Getters & Setters
     public CommitteeMemberId getId() { return id; }
     public void setId(CommitteeMemberId id) { this.id = id; }
 

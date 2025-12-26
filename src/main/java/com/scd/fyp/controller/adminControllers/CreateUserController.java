@@ -1,4 +1,4 @@
-package com.scd.fyp.controller.adminControllers.createUserController;
+package com.scd.fyp.controller.adminControllers;
 
 import com.scd.fyp.model.User;
 import com.scd.fyp.repository.UserRepository;
@@ -9,7 +9,6 @@ import com.scd.fyp.model.Role;
 import com.scd.fyp.model.UserRole;
 import com.scd.fyp.repository.RoleRepository;
 import com.scd.fyp.repository.UserRoleRepository;
-import java.util.Optional;
 
 
 
