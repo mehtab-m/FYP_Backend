@@ -61,6 +61,12 @@ public class ManageEvaluationCommitteeController {
                 ") added to Evaluation committee.";
     }
 
+    @GetMapping("/evaluation-committee/members")
+    public List<User> getEvaluationCommitteeMembers() {
+        return committeeMemberRepository.UsersforEvaluationCommittee(2L);
+    }
+
+
     @DeleteMapping("/evaluation-committee/{userId}")
     public void removeProfessorFromEvaluationCommittee(@PathVariable Long userId) {
         CommitteeMemberId id = new CommitteeMemberId();

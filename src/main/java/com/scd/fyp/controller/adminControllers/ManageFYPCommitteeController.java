@@ -38,8 +38,15 @@ public class ManageFYPCommitteeController {
 
     @GetMapping("/fyp-committee")
     public List<User> getFypCommitteeMembers() {
-        return committeeMemberRepository.findCommitteeUsers(1L);
+        return committeeMemberRepository.findCommitteeUsersForFYP(1L); // ✅ members of FYP committee
     }
+
+    @GetMapping("/fyp-committee/available-professors")
+    public List<User> getAvailableProfessorsForFyp() {
+        return committeeMemberRepository.findAvailableProfessorsForFYP(2L); // ✅ professors not in FYP committee
+    }
+
+
     @PostMapping("/fyp-committee")
     public String addProfessorToCommittee(@RequestBody AddProfessorRequest request) {
         // 🔍 Fetch professor
