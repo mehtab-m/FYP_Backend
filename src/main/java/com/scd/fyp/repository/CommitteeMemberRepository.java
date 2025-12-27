@@ -65,4 +65,26 @@ public interface CommitteeMemberRepository
     WHERE cm.committee.committeeId = :committeeId
     """)
     List<User> findCommitteeUsers(@Param("committeeId") Long committeeId);
+
+
+
+    @Query(
+            value = """
+        SELECT u.*
+        FROM users u
+        WHERE u.user_id IN (
+            SELECT ur.user_id
+            FROM user_roles ur
+            WHERE ur.role_id = 3
+        )
+        AND u.user_id NOT IN (
+            SELECT cm.user_id
+            FROM committee_members cm
+            WHERE cm.committee_id = :committeeId
+        )
+        """,
+            nativeQuery = true
+    )
+    List<User> findUsersNotInCommittee(@Param("committeeId") Long committeeId);
+
 }

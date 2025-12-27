@@ -32,10 +32,10 @@ public class ManageEvaluationCommitteeController {
 
     // ONLY CHANGED / ADDED CODE
 
-//    @GetMapping("/evaluation-committee/available-professors")
-//    public List<User> getAvailableProfessors() {
-//        return committeeMemberRepository.findUsersNotInCommittee(1L); // FYP committee
-//    }
+    @GetMapping("/evaluation-committee/available-professors")
+    public List<User> getAvailableProfessors() {
+        return committeeMemberRepository.findUsersNotInCommittee(1L); // FYP committee
+    }
 
 
     @PostMapping("/evaluation-committee")
