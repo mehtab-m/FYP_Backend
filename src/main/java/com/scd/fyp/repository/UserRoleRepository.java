@@ -6,4 +6,5 @@ import com.scd.fyp.model.UserRole;
 
 @Repository
 public interface UserRoleRepository extends JpaRepository<UserRole, Long> {
+    UserRole findByUserIdAndRoleId(Long userId, Long roleId);
 }

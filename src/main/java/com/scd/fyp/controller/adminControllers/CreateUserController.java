@@ -46,8 +46,8 @@ public class CreateUserController {
 
         if (request.getRoles() != null) {
             for (String roleName : request.getRoles()) {
-                Role role = roleRepository.findByRoleName(roleName)
-                        .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
+                Role role = roleRepository.findByRoleName(roleName).
+                        orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
 
                 UserRole userRole = new UserRole();
                 userRole.setUser(user);
