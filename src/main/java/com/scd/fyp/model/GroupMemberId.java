@@ -24,6 +24,7 @@ public class GroupMemberId implements Serializable {
                 Objects.equals(studentId, that.studentId);
     }
 
+
     @Override
     public int hashCode() {
         return Objects.hash(groupId, studentId);
