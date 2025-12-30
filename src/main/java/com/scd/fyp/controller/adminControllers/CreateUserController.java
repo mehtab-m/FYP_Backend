@@ -32,7 +32,7 @@ public class CreateUserController {
     @PostMapping("/create")
     public String createUser(@RequestBody CreateUserRequest request) {
         // ✅ Duplicate email check
-        if (userRepository.findByEmail(request.getEmail()) != null) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists: " + request.getEmail());
         }
 

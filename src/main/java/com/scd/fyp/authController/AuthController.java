@@ -49,7 +49,8 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
 
         // Step 1: Find user by email
-        User user = userRepository.findByEmail(request.getEmail());
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElse(null);
         if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             response.put("success", false);
             response.put("message", "Invalid email or password");

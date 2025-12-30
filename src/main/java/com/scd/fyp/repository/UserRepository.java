@@ -1,34 +1,53 @@
 package com.scd.fyp.repository;
 
-import com.scd.fyp.model.User;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
+import com.scd.fyp.model.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    // Find user by email
+    Optional<User> findByEmail(String email);
 
-    @Query("SELECT u FROM User u " +
-            "JOIN UserRole ur ON u.userId = ur.user.userId " +
-            "JOIN Role r ON ur.role.roleId = r.roleId " +
-            "WHERE r.roleName = :roleName")
-    List<User> findByRoleName(@Param("roleName") String roleName);
+    @Query("""
+        SELECT DISTINCT u FROM User u
+        JOIN UserRole ur ON u.userId = ur.userId
+        JOIN Role r ON ur.roleId = r.roleId
+        WHERE r.roleName = 'STUDENT'
+        AND u.userId NOT IN (
+            SELECT gm.id.studentId FROM GroupMember gm
+        )
+        AND u.userId NOT IN (
+            SELECT gi.studentId FROM GroupInvitation gi
+            WHERE gi.status = 'accepted'
+        )
+    """)
+    List<User> findAvailableStudents();
 
-    User findByEmail(String email);
-
-
-
-
-
-
-
-
-
-    @Query("SELECT u FROM User u " + "WHERE u.userId NOT IN (SELECT gm.id.studentId FROM GroupMember gm) " + "AND EXISTS (SELECT ur FROM UserRole ur JOIN ur.role r WHERE ur.user = u AND r.roleName = 'STUDENT')")
+    // Alias for findAvailableStudents (used in AvailableStudentsController)
+    @Query("""
+        SELECT DISTINCT u FROM User u
+        JOIN UserRole ur ON u.userId = ur.userId
+        JOIN Role r ON ur.roleId = r.roleId
+        WHERE r.roleName = 'STUDENT'
+        AND u.userId NOT IN (
+            SELECT gm.id.studentId FROM GroupMember gm
+        )
+        AND u.userId NOT IN (
+            SELECT gi.studentId FROM GroupInvitation gi
+            WHERE gi.status = 'accepted'
+        )
+    """)
     List<User> findAvailableStudentsForGrouping();
 
-
+    // Find users by role name (joins with UserRole and Role tables)
+    @Query("""
+        SELECT u FROM User u
+        JOIN UserRole ur ON u.userId = ur.userId
+        JOIN Role r ON ur.roleId = r.roleId
+        WHERE r.roleName = :roleName
+    """)
+    List<User> findByRoleName(String roleName);
 }
