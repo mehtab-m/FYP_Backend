@@ -19,15 +19,21 @@ public class GroupService {
     private final GroupRepository groupRepo;
     private final GroupMemberRepository memberRepo;
     private final GroupInvitationRepository invitationRepo;
+    private final com.scd.fyp.repository.ProjectRepository projectRepo;
+    private final com.scd.fyp.repository.ProjectApprovalRepository approvalRepo;
 
     public GroupService(UserRepository userRepo,
                         GroupRepository groupRepo,
                         GroupMemberRepository memberRepo,
-                        GroupInvitationRepository invitationRepo) {
+                        GroupInvitationRepository invitationRepo,
+                        com.scd.fyp.repository.ProjectRepository projectRepo,
+                        com.scd.fyp.repository.ProjectApprovalRepository approvalRepo) {
         this.userRepo = userRepo;
         this.groupRepo = groupRepo;
         this.memberRepo = memberRepo;
         this.invitationRepo = invitationRepo;
+        this.projectRepo = projectRepo;
+        this.approvalRepo = approvalRepo;
     }
 
     // 1️⃣ Available students
@@ -94,14 +100,14 @@ public class GroupService {
     public List<Map<String, Object>> getInvitationsWithLeaderInfo(Long studentId) {
         List<Map<String, Object>> results = new java.util.ArrayList<>();
         
-        // Get regular invitations
+        // Get regular invitations - show all invitations for this student
         List<GroupInvitation> invitations = invitationRepo.findByStudentId(studentId);
         for (GroupInvitation invite : invitations) {
-            // Skip if this invitation is for a group that's already finalized (to avoid duplicates)
-            if (memberRepo.countByGroupId(invite.getGroupId()) > 0 && 
-                !"accepted".equalsIgnoreCase(invite.getStatus()) &&
-                !"rejected".equalsIgnoreCase(invite.getStatus())) {
-                continue; // Skip pending invitations for finalized groups
+            // Only skip if student is already a member of this group AND invitation is accepted
+            // This prevents showing duplicate accepted invitations
+            boolean isMember = memberRepo.existsByGroupIdAndStudentId(invite.getGroupId(), studentId);
+            if (isMember && "accepted".equalsIgnoreCase(invite.getStatus())) {
+                continue; // Skip accepted invitations if student is already a member
             }
             
             Map<String, Object> result = new HashMap<>();
@@ -165,6 +171,50 @@ public class GroupService {
                     groupCreatedNotification.put("memberCount", allMembers.size());
                     groupCreatedNotification.put("memberNames", memberNames);
                     results.add(0, groupCreatedNotification); // Add at the beginning
+                }
+                
+                // Check if project is approved and add notification
+                try {
+                    Optional<com.scd.fyp.model.Project> projectOpt = projectRepo.findByGroupId(groupId);
+                    if (projectOpt.isPresent()) {
+                        com.scd.fyp.model.Project project = projectOpt.get();
+                        if ("approved".equalsIgnoreCase(project.getStatus())) {
+                            // Check if we already have a project approval notification
+                            boolean hasProjectApprovalNotification = results.stream()
+                                .anyMatch(r -> "PROJECT_APPROVED".equals(r.get("type")) && 
+                                              project.getProjectId().equals(r.get("projectId")));
+                            
+                            if (!hasProjectApprovalNotification) {
+                                Optional<com.scd.fyp.model.ProjectApproval> approvalOpt = approvalRepo.findById(project.getProjectId());
+                                if (approvalOpt.isPresent()) {
+                                    Long assignedSupervisorId = approvalOpt.get().getAssignedSupervisor();
+                                    User supervisor = assignedSupervisorId != null ? 
+                                        userRepo.findById(assignedSupervisorId).orElse(null) : null;
+                                    
+                                    Map<String, Object> projectApprovalNotification = new HashMap<>();
+                                    projectApprovalNotification.put("type", "PROJECT_APPROVED");
+                                    projectApprovalNotification.put("projectId", project.getProjectId());
+                                    projectApprovalNotification.put("groupId", groupId);
+                                    projectApprovalNotification.put("studentId", studentId);
+                                    projectApprovalNotification.put("status", "approved");
+                                    projectApprovalNotification.put("title", project.getTitle());
+                                    projectApprovalNotification.put("message", 
+                                        "Your project '" + project.getTitle() + "' has been approved by the FYP committee!");
+                                    if (supervisor != null) {
+                                        Map<String, Object> supervisorInfo = new HashMap<>();
+                                        supervisorInfo.put("id", supervisor.getUserId());
+                                        supervisorInfo.put("name", supervisor.getName());
+                                        supervisorInfo.put("email", supervisor.getEmail());
+                                        projectApprovalNotification.put("supervisor", supervisorInfo);
+                                    }
+                                    results.add(0, projectApprovalNotification); // Add at the beginning
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // Log error but don't break the notification system
+                    System.err.println("Error reading project for notifications: " + e.getMessage());
                 }
             }
         }

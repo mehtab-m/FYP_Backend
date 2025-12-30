@@ -11,12 +11,19 @@ public class Project {
     private Long projectId;
 
     private Long groupId;
+    
+    @Column(length = 500)
     private String title;
-    @Column(name = "abstract_text")
+    
+    @Column(name = "abstract_text", columnDefinition = "TEXT")
     private String abstractText;
+    
+    @Column(name = "scope", columnDefinition = "TEXT")
     private String scope;
-    @Column(name = "reference_text")
+    
+    @Column(name = "reference_text", columnDefinition = "TEXT")
     private String referenceText;
+    
     private String status; // pending / approved / rejected
 
     public Long getProjectId() { return projectId; }
