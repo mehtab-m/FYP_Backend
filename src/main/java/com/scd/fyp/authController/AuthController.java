@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.util.*;
+import com.scd.fyp.model.CommitteeMember;
+import com.scd.fyp.repository.CommitteeMemberRepository;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -18,6 +21,10 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CommitteeMemberRepository committeeMemberRepo;
+
 
     @Autowired
     private UserRoleRepository userRoleRepository;
@@ -58,8 +65,28 @@ public class AuthController {
         }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         // Step 2: Verify role
-        Role role = roleRepository.findByRoleName(request.getRole().toUpperCase())
+        String incomingRole = request.getRole();
+
+// Map committee roles to PROFESSOR internally
+        String normalizedRole = (incomingRole.equalsIgnoreCase("Fyp Committee") ||
+                incomingRole.equalsIgnoreCase("Evaluation Committee"))
+                ? "PROFESSOR"
+                : incomingRole;
+
+        Role role = roleRepository.findByRoleName(normalizedRole.toUpperCase())
                 .orElseThrow(() -> new RuntimeException("Invalid role"));
 
         UserRole userRole = userRoleRepository.findByUserIdAndRoleId(user.getUserId(), role.getRoleId());
@@ -68,6 +95,62 @@ public class AuthController {
             response.put("message", "User does not have this role");
             return response;
         }
+
+// Step 3: Committee membership check ONLY for committee roles
+        if (incomingRole.equalsIgnoreCase("Fyp Committee") ||
+                incomingRole.equalsIgnoreCase("Evaluation Committee")) {
+
+            CommitteeMember cm = committeeMemberRepo.committeeMemberLoginAuth(user.getUserId())
+                    .orElseThrow(() -> new RuntimeException("Not in any committee"));
+
+            if (incomingRole.equalsIgnoreCase("Fyp Committee") && cm.getCommittee().getCommitteeId() != 1) {
+                response.put("success", false);
+                response.put("message", "User not in FYP committee");
+                return response;
+            }
+
+            if (incomingRole.equalsIgnoreCase("Evaluation Committee") && cm.getCommittee().getCommitteeId() != 2) {
+                response.put("success", false);
+                response.put("message", "User not in Evaluation committee");
+                return response;
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         // Step 3: Generate JWT token (placeholder here)
         String token = "jwt_token_here"; // integrate with JWT util later
