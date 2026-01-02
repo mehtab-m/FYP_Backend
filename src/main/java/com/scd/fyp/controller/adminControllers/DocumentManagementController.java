@@ -37,6 +37,8 @@ public class DocumentManagementController {
             docMap.put("documentId", d.getDocumentId());
             docMap.put("documentName", d.getDocumentName());
             docMap.put("sequenceNo", d.getSequenceNo());
+            docMap.put("deadline", d.getDeadline());
+            docMap.put("deadline_time",d.getDeadlineTime());
             if (scheme != null) {
                 docMap.put("committeeMaxMarks", scheme.getCommitteeMaxMarks());
                 docMap.put("supervisorMaxMarks", scheme.getSupervisorMaxMarks());

@@ -112,19 +112,7 @@ public class FYPController {
         }
     }
 
-    /**
-     * Reject a project registration
-     * Changes status from "pending" to "rejected"
-     * 
-     * Request Body:
-     * {
-     *   "projectId": 1,
-     *   "reason": "Project does not meet requirements..."
-     * }
-     * 
-     * Note: Rejection reason is currently returned in response but not persisted in database.
-     * To store rejection reason, add a rejection_reason column to projects table.
-     */
+
     @PostMapping("/projects/reject")
     public Map<String, Object> rejectProject(@RequestBody Map<String, Object> request) {
         try {
