@@ -116,7 +116,7 @@ public class FYPCommitteeService {
      * Can be done before or after accepting the project
      */
     @Transactional
-    public Map<String, Object> assignSupervisor(Long projectId, Long supervisorId) {
+    public Map<String, Object> assignSupervisor(Long projectId, String supervisorEmail, Long committeeId) {
         Map<String, Object> response = new HashMap<>();
         
         // Validate project exists
@@ -129,22 +129,24 @@ public class FYPCommitteeService {
         
         Project project = projectOpt.get();
         
-        // Validate supervisor exists and is a supervisor
-        Optional<User> supervisorOpt = userRepo.findById(supervisorId);
+        // Find supervisor by email
+        Optional<User> supervisorOpt = userRepo.findByEmail(supervisorEmail);
         if (supervisorOpt.isEmpty()) {
             response.put("success", false);
-            response.put("message", "Supervisor not found");
+            response.put("message", "Supervisor not found with email: " + supervisorEmail);
             return response;
         }
         
         User supervisor = supervisorOpt.get();
+        Long supervisorId = supervisor.getUserId();
+        
         // Verify user is a supervisor
         List<User> supervisors = userRepo.findByRoleName("SUPERVISOR");
         boolean isSupervisor = supervisors.stream()
             .anyMatch(s -> s.getUserId().equals(supervisorId));
         if (!isSupervisor) {
             response.put("success", false);
-            response.put("message", "User is not a supervisor");
+            response.put("message", "User with email " + supervisorEmail + " is not a supervisor");
             return response;
         }
         
@@ -156,12 +158,21 @@ public class FYPCommitteeService {
         } else {
             approval = new ProjectApproval();
             approval.setProjectId(projectId);
-            approval.setApprovalDate(LocalDate.now());
         }
         
+        // Update approval record
         approval.setAssignedSupervisor(supervisorId);
-        approvalRepo.save(approval);
+        // Don't set approved_by_committee when just assigning supervisor - only set it when approving
+        // approval.setApprovedByCommittee(committeeId);
+        approval.setApprovalDate(LocalDate.now());
         
+        // Update project record
+        project.setAssignedSupervisorId(supervisorId);
+        
+        // Save both 
+        approvalRepo.saveAndFlush(approval);
+        projectRepo.saveAndFlush(project);
+
         response.put("success", true);
         response.put("message", "Supervisor assigned successfully");
         Map<String, Object> supervisorInfo = new HashMap<>();

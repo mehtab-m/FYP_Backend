@@ -26,6 +26,17 @@ public class Project {
 
     private String status; // pending / approved / rejected
 
+    @Column(name = "assigned_supervisor_id")
+    private Long assignedSupervisorId;
+
+    public Long getAssignedSupervisorId() {
+        return assignedSupervisorId;
+    }
+
+    public void setAssignedSupervisorId(Long assignedSupervisorId) {
+        this.assignedSupervisorId = assignedSupervisorId;
+    }
+
     public Long getProjectId() {
         return projectId;
     }

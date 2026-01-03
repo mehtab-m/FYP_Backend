@@ -53,7 +53,8 @@ public class FYPController {
     public Map<String, Object> assignSupervisor(@RequestBody Map<String, Object> request) {
         try {
             Long projectId = getLongValue(request.get("projectId"));
-            Long supervisorId = getLongValue(request.get("supervisorId"));
+            String supervisorEmail = (String) request.get("supervisorEmail");
+            Long committeeId = getLongValue(request.get("committeeId"));
             
             if (projectId == null) {
                 Map<String, Object> error = new java.util.HashMap<>();
@@ -62,14 +63,14 @@ public class FYPController {
                 return error;
             }
             
-            if (supervisorId == null) {
+            if (supervisorEmail == null || supervisorEmail.trim().isEmpty()) {
                 Map<String, Object> error = new java.util.HashMap<>();
                 error.put("success", false);
-                error.put("message", "supervisorId is required");
+                error.put("message", "supervisorEmail is required");
                 return error;
             }
             
-            return fypCommitteeService.assignSupervisor(projectId, supervisorId);
+            return fypCommitteeService.assignSupervisor(projectId, supervisorEmail, committeeId);
         } catch (Exception e) {
             Map<String, Object> error = new java.util.HashMap<>();
             error.put("success", false);
