@@ -207,7 +207,7 @@ public class FYPCommitteeService {
         }
         
         // Update project status to "accepted"
-        project.setStatus("accepted");
+        project.setStatus("approved");
         projectRepo.save(project);
         
         response.put("success", true);
@@ -283,7 +283,7 @@ public class FYPCommitteeService {
         }
         
         Project project = projectOpt.get();
-        if (!"accepted".equalsIgnoreCase(project.getStatus())) {
+        if (!"approved".equalsIgnoreCase(project.getStatus())) {
             response.put("success", false);
             response.put("message", "Project must be in accepted status to approve. Current status: " + project.getStatus());
             return response;
