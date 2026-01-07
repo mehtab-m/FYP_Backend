@@ -1,10 +1,11 @@
 package com.scd.fyp.model;
 
+import com.scd.fyp.model.interfaces.IRole;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "roles")
-public class Role {
+public class Role implements IRole {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

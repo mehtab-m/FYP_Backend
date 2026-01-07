@@ -1,5 +1,6 @@
 package com.scd.fyp.model;
 
+import com.scd.fyp.model.interfaces.IDocument;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -8,7 +9,7 @@ import java.time.LocalTime;
 
 @Entity
 @Table(name = "documents")
-public class Document {
+public class Document implements IDocument {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

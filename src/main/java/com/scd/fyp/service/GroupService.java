@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +14,8 @@ import com.scd.fyp.model.*;
 import com.scd.fyp.repository.*;
 
 @Service
-public class GroupService {
+@Primary
+public class GroupService implements IGroupService {
 
     private final UserRepository userRepo;
     private final GroupRepository groupRepo;

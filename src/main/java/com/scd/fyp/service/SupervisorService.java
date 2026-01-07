@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -12,7 +13,8 @@ import com.scd.fyp.model.*;
 import com.scd.fyp.repository.*;
 
 @Service
-public class SupervisorService {
+@Primary
+public class SupervisorService implements ISupervisorService {
 
     private final ProjectApprovalRepository approvalRepo;
     private final ProjectRepository projectRepo;

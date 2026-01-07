@@ -1,10 +1,11 @@
 package com.scd.fyp.model;
 
+import com.scd.fyp.model.interfaces.IProject;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "projects")
-public class Project {
+public class Project implements IProject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

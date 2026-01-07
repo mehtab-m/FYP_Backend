@@ -1,10 +1,11 @@
 package com.scd.fyp.model;
 
+import com.scd.fyp.model.interfaces.IGroup;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "groups")
-public class Group {
+public class Group implements IGroup {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
