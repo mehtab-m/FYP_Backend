@@ -89,9 +89,16 @@ public class SubmitDocumentController {
                     .max()
                     .orElse(0) + 1;
 
-            // 4. Save file
+            // 4. Save file - sanitize filename to avoid special characters
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null || originalFilename.isEmpty()) {
+                originalFilename = "file";
+            }
+            
+            // Sanitize filename: remove or replace special characters
+            String sanitizedFilename = sanitizeFilename(originalFilename);
             String fileName = group.getGroupId() + "_" + documentId + "_v" + version + "_" + 
-                             System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                             System.currentTimeMillis() + "_" + sanitizedFilename;
             Path filePath = Paths.get(UPLOAD_DIR + fileName);
             Files.copy(file.getInputStream(), filePath);
 
@@ -175,5 +182,40 @@ public class SubmitDocumentController {
             response.put("message", "Error fetching submission statuses: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }
+    }
+    
+    /**
+     * Sanitize filename by removing or replacing special characters
+     * This prevents URL encoding issues and file system problems
+     */
+    private String sanitizeFilename(String filename) {
+        if (filename == null || filename.isEmpty()) {
+            return "file";
+        }
+        
+        // Remove path separators and other dangerous characters
+        String sanitized = filename
+            .replaceAll("[\\\\/:*?\"<>|{}]", "_")  // Replace special chars with underscore
+            .replaceAll("\\s+", "_")                // Replace spaces with underscore
+            .replaceAll("_{2,}", "_")               // Replace multiple underscores with single
+            .replaceAll("^_+|_+$", "");             // Remove leading/trailing underscores
+        
+        // Ensure filename is not empty
+        if (sanitized.isEmpty()) {
+            sanitized = "file_" + System.currentTimeMillis();
+        }
+        
+        // Limit filename length
+        if (sanitized.length() > 200) {
+            String extension = "";
+            int lastDot = sanitized.lastIndexOf('.');
+            if (lastDot > 0) {
+                extension = sanitized.substring(lastDot);
+                sanitized = sanitized.substring(0, lastDot);
+            }
+            sanitized = sanitized.substring(0, 200 - extension.length()) + extension;
+        }
+        
+        return sanitized;
     }
 }
