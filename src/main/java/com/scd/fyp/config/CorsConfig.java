@@ -14,7 +14,13 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost:5173")); // React dev server
+        config.setAllowedOrigins(
+                List.of(
+                        "http://localhost:8080",
+                        "http://localhost:5173"
+                )
+        );
+        // React dev server
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
 
